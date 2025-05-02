@@ -1,15 +1,10 @@
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
+import AttendanceTracker from "@/app/components/attendance-tracker"
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-24">
-      <h1 className="text-4xl font-bold mb-8">勤怠管理システム</h1>
-      <div className="flex flex-col gap-4 w-full max-w-md">
-        <Link href="/attendance" className="w-full">
-          <Button className="w-full text-lg py-6">勤怠管理ページへ</Button>
-        </Link>
-      </div>
+    <main className="container mx-auto p-4 max-w-6xl">
+      <h1 className="text-2xl font-bold mb-6">勤怠管理ダッシュボード</h1>
+      <AttendanceTracker />
     </main>
   )
 }
