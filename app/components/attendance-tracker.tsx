@@ -4,25 +4,20 @@ import { format } from "date-fns"
 import { ja } from "date-fns/locale"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { ChevronLeft, ChevronRight, Download, Calendar } from "lucide-react"
+import { ChevronLeft, ChevronRight, Download } from "lucide-react"
 import AttendanceActions from "./attendance-actions"
 import AttendanceTable from "./attendance-table"
 import EditRecordDialog from "./edit-record-dialog"
-import GoogleCalendarSync from "./google-calendar-sync"
 import { useAttendanceData } from "@/app/hooks/use-attendance-data"
 import { exportToICalendar } from "@/app/utils/ical-export"
 import type { AttendanceRecord } from "@/app/types/attendance"
 
 export default function AttendanceTracker() {
-  const { attendanceRecords, currentMonth, setCurrentMonth, clockIn, clockOut, updateRecord, exportToJson } =
-    useAttendanceData()
+  const { attendanceRecords, currentMonth, setCurrentMonth, clockIn, clockOut, updateRecord } = useAttendanceData()
 
   // 編集用の状態
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [recordToEdit, setRecordToEdit] = useState<AttendanceRecord | null>(null)
-
-  // Google Calendar同期ダイアログの状態
-  const [isGoogleCalendarDialogOpen, setIsGoogleCalendarDialogOpen] = useState(false)
 
   const handlePreviousMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))
@@ -34,10 +29,6 @@ export default function AttendanceTracker() {
 
   const handleExportIcal = () => {
     exportToICalendar(attendanceRecords)
-  }
-
-  const handleExportJson = () => {
-    exportToJson()
   }
 
   // 編集ダイアログを開く
@@ -60,11 +51,6 @@ export default function AttendanceTracker() {
   const handleCancelEdit = () => {
     setIsEditDialogOpen(false)
     setRecordToEdit(null)
-  }
-
-  // Google Calendar同期ダイアログを開く
-  const handleOpenGoogleCalendarDialog = () => {
-    setIsGoogleCalendarDialogOpen(true)
   }
 
   const formattedMonth = format(currentMonth, "yyyy年MM月", { locale: ja })
@@ -101,18 +87,10 @@ export default function AttendanceTracker() {
         </CardHeader>
         <CardContent>
           <AttendanceTable records={filteredRecords} onEdit={handleEdit} />
-          <div className="mt-4 flex flex-wrap gap-2">
+          <div className="mt-4">
             <Button variant="outline" onClick={handleExportIcal} className="flex items-center gap-2">
               <Download className="h-4 w-4" />
               iCalでエクスポート
-            </Button>
-            <Button variant="outline" onClick={handleExportJson} className="flex items-center gap-2">
-              <Download className="h-4 w-4" />
-              JSONでエクスポート
-            </Button>
-            <Button variant="outline" onClick={handleOpenGoogleCalendarDialog} className="flex items-center gap-2">
-              <Calendar className="h-4 w-4" />
-              Googleカレンダーに同期
             </Button>
           </div>
         </CardContent>
@@ -124,13 +102,6 @@ export default function AttendanceTracker() {
         open={isEditDialogOpen}
         onClose={handleCancelEdit}
         onSave={handleSaveEdit}
-      />
-
-      {/* Google Calendar同期ダイアログ */}
-      <GoogleCalendarSync
-        open={isGoogleCalendarDialogOpen}
-        onClose={() => setIsGoogleCalendarDialogOpen(false)}
-        records={attendanceRecords}
       />
     </div>
   )
