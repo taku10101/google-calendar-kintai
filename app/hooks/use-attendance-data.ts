@@ -98,24 +98,6 @@ export function useAttendanceData() {
     setAttendanceRecords(attendanceRecords.map((record) => (record.id === updatedRecord.id ? updatedRecord : record)))
   }
 
-  // JSON形式でデータをエクスポート
-  const exportToJson = () => {
-    const jsonData = JSON.stringify(attendanceRecords)
-    const blob = new Blob([jsonData], { type: "application/json" })
-    const url = URL.createObjectURL(blob)
-
-    const link = document.createElement("a")
-    link.href = url
-    link.download = "attendance_records.json"
-    document.body.appendChild(link)
-    link.click()
-
-    setTimeout(() => {
-      document.body.removeChild(link)
-      URL.revokeObjectURL(url)
-    }, 100)
-  }
-
   return {
     attendanceRecords,
     currentMonth,
@@ -123,6 +105,5 @@ export function useAttendanceData() {
     clockIn,
     clockOut,
     updateRecord,
-    exportToJson,
   }
 }
