@@ -129,11 +129,11 @@ export default function AttendanceTracker() {
             <div className="grid grid-cols-2 gap-4 pt-2">
               <div className="rounded-lg border p-3">
                 <div className="text-sm font-medium text-muted-foreground">合計稼働時間</div>
-                <div className="text-2xl font-bold">{totalWorkingHours.toFixed(2)}時間</div>
+                <div className="text-2xl font-bold">{Math.floor(totalWorkingHours)}時間</div>
               </div>
               <div className="rounded-lg border p-3">
                 <div className="text-sm font-medium text-muted-foreground">合計給与 (概算)</div>
-                <div className="text-2xl font-bold">{totalSalary.toLocaleString()}円</div>
+                <div className="text-2xl font-bold">{Math.floor(totalSalary).toLocaleString()}円</div>
               </div>
             </div>
           </div>
