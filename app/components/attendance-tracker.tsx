@@ -11,9 +11,12 @@ import EditRecordDialog from "./edit-record-dialog"
 import { useAttendanceData } from "@/app/hooks/use-attendance-data"
 import { exportToICalendar } from "@/app/utils/ical-export"
 import type { AttendanceRecord } from "@/app/types/attendance"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 
 export default function AttendanceTracker() {
   const { attendanceRecords, currentMonth, setCurrentMonth, clockIn, clockOut, updateRecord } = useAttendanceData()
+  const [hourlyRate, setHourlyRate] = useState(2500) // デフォルト時給2500円
 
   // 編集用の状態
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
@@ -61,6 +64,12 @@ export default function AttendanceTracker() {
     return recordDate.getMonth() === currentMonth.getMonth() && recordDate.getFullYear() === currentMonth.getFullYear()
   })
 
+  // 合計稼働時間を計算
+  const totalWorkingHours = filteredRecords.reduce((total, record) => total + record.workingHours, 0)
+
+  // 合計給与を計算
+  const totalSalary = totalWorkingHours * hourlyRate
+
   return (
     <div className="space-y-6">
       <Card>
@@ -92,6 +101,41 @@ export default function AttendanceTracker() {
               <Download className="h-4 w-4" />
               iCalでエクスポート
             </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* 合計稼働時間と給与計算 */}
+      <Card>
+        <CardHeader>
+          <CardTitle>稼働時間と給与計算</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4">
+            <div className="grid grid-cols-2 items-center gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="hourlyRate">時給 (円)</Label>
+                <Input
+                  id="hourlyRate"
+                  type="number"
+                  value={hourlyRate}
+                  min={0}
+                  onChange={(e) => setHourlyRate(Number(e.target.value))}
+                />
+              </div>
+              <div></div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-4 pt-2">
+              <div className="rounded-lg border p-3">
+                <div className="text-sm font-medium text-muted-foreground">合計稼働時間</div>
+                <div className="text-2xl font-bold">{totalWorkingHours.toFixed(2)}時間</div>
+              </div>
+              <div className="rounded-lg border p-3">
+                <div className="text-sm font-medium text-muted-foreground">合計給与 (概算)</div>
+                <div className="text-2xl font-bold">{totalSalary.toLocaleString()}円</div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
