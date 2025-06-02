@@ -96,6 +96,13 @@ export default function AttendanceTracker() {
   // 合計給与を計算
   const totalSalary = totalWorkingHours * hourlyRate
 
+  // 削除処理
+  const handleDelete = (id: string) => {
+    if (window.confirm('本当に削除しますか？')) {
+      setAttendanceRecords(attendanceRecords.filter((record) => record.id !== id))
+    }
+  }
+
   return (
     <div className="space-y-6">
       <Card>
@@ -121,7 +128,7 @@ export default function AttendanceTracker() {
           </div>
         </CardHeader>
         <CardContent>
-          <AttendanceTable records={filteredRecords} onEdit={handleEdit} />
+          <AttendanceTable records={filteredRecords} onEdit={handleEdit} onDelete={handleDelete} />
           <div className="mt-4 flex gap-2 items-center">
             <Button variant="outline" onClick={handleExportIcal} className="flex items-center gap-2">
               <Download className="h-4 w-4" />
