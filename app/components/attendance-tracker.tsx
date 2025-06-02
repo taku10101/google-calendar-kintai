@@ -10,17 +10,19 @@ import AttendanceTable from "./attendance-table"
 import EditRecordDialog from "./edit-record-dialog"
 import { useAttendanceData } from "@/app/hooks/use-attendance-data"
 import { exportToICalendar } from "@/app/utils/ical-export"
+import { importFromICalendar } from "@/app/utils/ical-import"
 import type { AttendanceRecord } from "@/app/types/attendance"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 export default function AttendanceTracker() {
-  const { attendanceRecords, currentMonth, setCurrentMonth, clockIn, clockOut, updateRecord } = useAttendanceData()
+  const { attendanceRecords, currentMonth, setCurrentMonth, clockIn, clockOut, updateRecord, setAttendanceRecords } = useAttendanceData()
   const [hourlyRate, setHourlyRate] = useState(2500) // デフォルト時給2500円
 
   // 編集用の状態
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [recordToEdit, setRecordToEdit] = useState<AttendanceRecord | null>(null)
+  const [importError, setImportError] = useState<string | null>(null)
 
   const handlePreviousMonth = () => {
     setCurrentMonth(new Date(currentMonth.getFullYear(), currentMonth.getMonth() - 1))
@@ -54,6 +56,30 @@ export default function AttendanceTracker() {
   const handleCancelEdit = () => {
     setIsEditDialogOpen(false)
     setRecordToEdit(null)
+  }
+
+  // iCalインポート処理
+  const handleImportIcal = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    setImportError(null)
+    const file = e.target.files?.[0]
+    if (!file) return
+    try {
+      const text = await file.text()
+      const importedRecords = await importFromICalendar(text)
+      // 既存の勤怠記録とマージ（重複IDは上書き）
+      const merged = [...attendanceRecords]
+      importedRecords.forEach((rec) => {
+        const idx = merged.findIndex((r) => r.id === rec.id)
+        if (idx >= 0) {
+          merged[idx] = rec
+        } else {
+          merged.push(rec)
+        }
+      })
+      setAttendanceRecords(merged)
+    } catch (err) {
+      setImportError("インポートに失敗しました。ファイル形式を確認してください。")
+    }
   }
 
   const formattedMonth = format(currentMonth, "yyyy年MM月", { locale: ja })
@@ -96,11 +122,23 @@ export default function AttendanceTracker() {
         </CardHeader>
         <CardContent>
           <AttendanceTable records={filteredRecords} onEdit={handleEdit} />
-          <div className="mt-4">
+          <div className="mt-4 flex gap-2 items-center">
             <Button variant="outline" onClick={handleExportIcal} className="flex items-center gap-2">
               <Download className="h-4 w-4" />
               iCalでエクスポート
             </Button>
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="file"
+                accept=".ics,text/calendar"
+                onChange={handleImportIcal}
+                style={{ display: "none" }}
+              />
+              <Button asChild variant="outline" className="flex items-center gap-2">
+                <span>iCalでインポート</span>
+              </Button>
+            </label>
+            {importError && <span className="text-red-500 text-sm">{importError}</span>}
           </div>
         </CardContent>
       </Card>

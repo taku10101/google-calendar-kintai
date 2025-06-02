@@ -105,5 +105,6 @@ export function useAttendanceData() {
     clockIn,
     clockOut,
     updateRecord,
+    setAttendanceRecords,
   }
 }
