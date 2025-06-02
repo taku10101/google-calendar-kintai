@@ -10,20 +10,27 @@ export function useAttendanceData() {
   const [currentMonth, setCurrentMonth] = useState(new Date())
   const [currentRecord, setCurrentRecord] = useState<AttendanceRecord | null>(null)
 
-  // LocalStorageからデータを読み込む
+  // 月ごとのキーを生成
+  const getMonthKey = (date: Date) => {
+    return `attendanceRecords-${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}`
+  }
+
+  // LocalStorageからデータを読み込む（月ごと）
   useEffect(() => {
-    const savedRecords = localStorage.getItem("attendanceRecords")
+    const key = getMonthKey(currentMonth)
+    const savedRecords = localStorage.getItem(key)
     if (savedRecords) {
       setAttendanceRecords(JSON.parse(savedRecords))
+    } else {
+      setAttendanceRecords([])
     }
-  }, [])
+  }, [currentMonth])
 
-  // データが変更されたらLocalStorageに保存
+  // データが変更されたらLocalStorageに保存（月ごと）
   useEffect(() => {
-    if (attendanceRecords.length > 0) {
-      localStorage.setItem("attendanceRecords", JSON.stringify(attendanceRecords))
-    }
-  }, [attendanceRecords])
+    const key = getMonthKey(currentMonth)
+    localStorage.setItem(key, JSON.stringify(attendanceRecords))
+  }, [attendanceRecords, currentMonth])
 
   // 現在の日付を取得
   const getCurrentDateString = () => {
