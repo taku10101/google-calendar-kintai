@@ -51,7 +51,9 @@ export function exportToICalendar(records: AttendanceRecord[]): void {
   icalContent += "\r\nEND:VCALENDAR"
 
   // ファイルとしてダウンロード
-  downloadFile(icalContent, "勤怠記録.ics", "text/calendar")
+  const now = new Date()
+  const dateStr = `${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}`
+  downloadFile(icalContent, `勤怠記録_${dateStr}.ics`, "text/calendar")
 }
 
 // 日付と時間を結合してiCalendar形式のUTC日時に変換
