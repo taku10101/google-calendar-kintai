@@ -156,7 +156,12 @@ export default function GoogleCalendarSync({ open, onClose, records }: GoogleCal
 
         // 開始時間と終了時間を作成
         const startTime = new Date(year, month - 1, day, inHour, inMinute, inSecond)
-        const endTime = new Date(year, month - 1, day, outHour, outMinute, outSecond)
+        let endTime = new Date(year, month - 1, day, outHour, outMinute, outSecond)
+
+        // 日付をまたぐ場合（退勤時間が出勤時間より早い場合）
+        if (endTime <= startTime) {
+          endTime = new Date(year, month - 1, day + 1, outHour, outMinute, outSecond)
+        }
 
         // タイトルを設定
         const title = record.title ? record.title : "勤務"
